@@ -1,8 +1,10 @@
 package cn.com.countrygarden.ohome.security.util;
 
 import cn.com.countrygarden.ohome.security.enums.CommonParams;
+import com.jfinal.kit.HashKit;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,11 +15,28 @@ import java.util.Set;
 public class ParamsResolve {
 
     /**
+     * 转换
+     * @param params
+     * @return
+     */
+    public static Map<String,String> convertMaps(Map<String,String[]> params){
+        Set<String> keySet = params.keySet();
+        String[] value = null;
+        Map<String,String> map = new HashMap<String,String>();
+        for (String key:keySet) {
+            value = params.get(key);
+            if(!isNull(value)){
+                map.put(key,value[0]);
+            }
+        }
+        return map;
+    }
+    /**
      * 请求参数是否包含公共参数
      * @param params
      * @return
      */
-    public static boolean mapIsContainCommonParams(Map<String,String[]> params){
+    public static boolean mapIsContainCommonParams(Map<String,String> params){
         if(params == null){
             return false;
         }
@@ -39,7 +58,7 @@ public class ParamsResolve {
      * 去除map中的值为空的字段
      * @param params
      */
-    public static void mapRemoveNull(Map<String,String[]> params){
+    public static void mapRemoveNull(Map<String,String> params){
 
         Set<String> keySet = params.keySet();
         Object value = null;
@@ -56,7 +75,9 @@ public class ParamsResolve {
      * @param params
      * @return
      */
-    public static String mapConvertString(Map<String,String[]> params){
+    public static String mapConvertString(Map<String,String> params){
+        //移除sign字段
+        params.remove("sign");
         Set<String> keySet = params.keySet();
         String[] keys = (String[]) keySet.toArray();
         Arrays.sort(keys);
@@ -67,6 +88,16 @@ public class ParamsResolve {
         return sb.toString();
     }
 
+    /**
+     * 创建md5签名
+     * @param params
+     */
+    public static void createMd5Sign(Map<String,String> params,String secret){
+        mapRemoveNull(params);
+        String signStr = mapConvertString(params);
+        String sign = HashKit.md5(secret+signStr+secret);
+        params.put("sign",sign);
+    }
     /**
      * 判断对象是否为空
      * @param o

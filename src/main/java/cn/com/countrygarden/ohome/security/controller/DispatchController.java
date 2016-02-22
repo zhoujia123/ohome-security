@@ -1,5 +1,8 @@
 package cn.com.countrygarden.ohome.security.controller;
 
+import cn.com.countrygarden.ohome.security.interceptors.CommonParamsInterceptor;
+import cn.com.countrygarden.ohome.security.interceptors.InvalidTimestampInterceptor;
+import com.jfinal.aop.Before;
 import com.jfinal.core.Controller;
 
 /**
@@ -11,6 +14,7 @@ public class DispatchController extends Controller{
     /**
      * 分发
      */
+    @Before({CommonParamsInterceptor.class, InvalidTimestampInterceptor.class})
     public void index(){
         renderText("dispatch");
     }
